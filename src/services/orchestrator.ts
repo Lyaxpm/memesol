@@ -22,9 +22,12 @@ export async function runLoop(env: Env, runtime: AgentRuntime, broker: Broker, r
   const portfolio = defaultPortfolio(balance);
   portfolio.openPositions = openPositions;
 
-  const tokens = await discoverTrendingTokens();
+  const topTokens = await discoverTrendingTokens();
+  const wallets = filterDiscoveredWallets(await discoverWalletActivity(topTokens.map((t) => t.address)));
+  const walletTokenAddresses = new Set(wallets.map((w) => w.sourceTokenAddress).filter((a): a is string => Boolean(a)));
+  const tokens = topTokens.filter((t) => walletTokenAddresses.has(t.address));
+
   tokens.forEach((t) => repo.upsertToken(t));
-  const wallets = filterDiscoveredWallets(await discoverWalletActivity(tokens.map((t) => t.address)));
   wallets.forEach((w) => repo.upsertWallet(w));
 
   const walletScores = wallets.map(scoreWallet);

@@ -15,6 +15,8 @@ export interface TokenCandidate {
 
 export interface WalletCandidate {
   address: string;
+  sourceTokenAddress?: string;
+  sourceTokenSymbol?: string;
   observedTrades: number;
   winRateProxy: number;
   realizedPnlProxyUsd: number;
