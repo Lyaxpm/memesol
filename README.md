@@ -16,24 +16,20 @@ This is **an AI agent runtime**, not only a deterministic rule bot:
 
 Agent cycle: observe → analyze → decide → validate → act → reflect.
 
-## Exa integration
+## AgentRouter integration
 Configured via env:
-- `EXA_API_KEY` (required for online reasoning)
-- `EXA_BASE_URL` (default `https://api.exa.ai`)
-- `EXA_MODEL` (default `exa`)
-- `EXA_SEARCH_TYPE` (default `auto`)
+- `AGENT_ROUTER_TOKEN` (required for online reasoning)
+- `AGENTROUTER_BASE_URL` (default `https://agentrouter.org/v1`)
+- `AGENT_MODEL` (default `deepseek-v3.2`)
 
 LLM integration uses provider abstraction:
 - `src/llm/types.ts`
 - `src/llm/provider.ts`
-- `src/llm/exaClient.ts`
+- `src/llm/agentRouterClient.ts`
 
 Structured response parsing/validation:
 - `src/llm/parser.ts` (zod schema)
-- Invalid model output falls back to safe `SKIP`.
-
-Panduan langkah-per-langkah integrasi Exa tersedia di:
-- `docs/exa-codex-integration.md`
+- Invalid model output or unavailable provider falls back to safe `SKIP` observation mode.
 
 ## Run
 ```bash
@@ -43,6 +39,12 @@ npm run start
 ```
 
 `npm run start` performs startup banner, env validation, DB bootstrap, health checks, then starts continuous autonomous loops.
+
+Startup health includes AgentRouter status:
+- `agentrouter: configured`
+- `agentrouter: reachable`
+- `agentrouter: response shape valid`
+- if not configured/reachable, app continues in safe fallback observation mode.
 
 ## Paper vs Live
 - Default: `PAPER_TRADING=true`, `LIVE_TRADING=false`
@@ -74,3 +76,4 @@ No chain-of-thought is printed; only concise decision reasons.
 - External APIs are adapterized with safe placeholders for paper-mode bootability.
 - Live routing/execution adapter should be completed and audited before real funds.
 - Meme-coin markets are highly risky; many loops should SKIP by design with $10 capital.
+- CLI-only app; no web UI/dashboard.
