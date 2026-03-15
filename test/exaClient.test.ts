@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AgentRouterClient } from "../src/llm/agentRouterClient.js";
+import { ExaClient } from "../src/llm/exaClient.js";
 import type { Env } from "../src/config/env.js";
 
 const baseEnv: Env = {
@@ -7,11 +7,10 @@ const baseEnv: Env = {
   HELIUS_API_KEY: "",
   JUPITER_API_KEY: "",
   BOT_PRIVATE_KEY: "",
-  AGENT_ROUTER_TOKEN: "token",
-  AGENTROUTER_API_KEY: "",
-  OPENAI_API_KEY: "",
-  AGENTROUTER_BASE_URL: "https://agentrouter.org/v1",
-  AGENT_MODEL: "gpt-5",
+  EXA_API_KEY: "token",
+  EXA_BASE_URL: "https://api.exa.ai",
+  EXA_MODEL: "exa",
+  EXA_SEARCH_TYPE: "auto",
   LIVE_TRADING: false,
   PAPER_TRADING: true,
   KILL_SWITCH: false,
@@ -35,7 +34,7 @@ const baseEnv: Env = {
   LOG_FORMAT: "pretty"
 };
 
-describe("AgentRouterClient", () => {
+describe("ExaClient", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
@@ -43,7 +42,7 @@ describe("AgentRouterClient", () => {
   it("falls back to SKIP when auth fails", async () => {
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response("unauthorized", { status: 401 }));
 
-    const client = new AgentRouterClient(baseEnv);
+    const client = new ExaClient(baseEnv);
     const res = await client.complete({
       systemPrompt: "system",
       userPrompt: "user",
@@ -58,7 +57,7 @@ describe("AgentRouterClient", () => {
   it("throws on non-auth http errors", async () => {
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response("server blew up", { status: 500 }));
 
-    const client = new AgentRouterClient(baseEnv);
+    const client = new ExaClient(baseEnv);
 
     await expect(
       client.complete({
@@ -66,23 +65,17 @@ describe("AgentRouterClient", () => {
         userPrompt: "user",
         timeoutMs: 200
       })
-    ).rejects.toThrow("AgentRouter error: 500");
+    ).rejects.toThrow("Exa error: 500");
   });
 
-  it("accepts OPENAI_API_KEY alias and strips Bearer prefix", async () => {
+  it("sends x-api-key header and strips Bearer prefix", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
-      return new Response(
-        JSON.stringify({
-          choices: [{ message: { content: '{"action":"HOLD","confidence":0.8}' } }]
-        }),
-        { status: 200 }
-      );
+      return new Response(JSON.stringify({ answer: '{"action":"HOLD","confidence":0.8}' }), { status: 200 });
     });
 
-    const client = new AgentRouterClient({
+    const client = new ExaClient({
       ...baseEnv,
-      AGENT_ROUTER_TOKEN: "",
-      OPENAI_API_KEY: "Bearer quoted-token"
+      EXA_API_KEY: "Bearer quoted-token"
     });
 
     await client.complete({
@@ -93,7 +86,6 @@ describe("AgentRouterClient", () => {
 
     const call = fetchSpy.mock.calls[0];
     expect(call?.[1]?.headers).toMatchObject({
-      Authorization: "Bearer quoted-token",
       "x-api-key": "quoted-token"
     });
   });
