@@ -19,7 +19,7 @@ Agent cycle: observe → analyze → decide → validate → act → reflect.
 ## AgentRouter integration
 Configured via env:
 - `AGENT_ROUTER_TOKEN`
-- `AGENTROUTER_BASE_URL` (default `https://agentrouter.org/v1`)
+- `AGENTROUTER_BASE_URL` (default `https://api.agentrouter.org/v1`)
 - `AGENT_MODEL` (default `gpt-5`)
 
 LLM integration uses provider abstraction:
