@@ -4,15 +4,15 @@ import { selectPrimaryCandidate } from "./planner.js";
 import { requestAgentDecision } from "./decision.js";
 import type { AgentMemory } from "./memory.js";
 import type { CandidateContext } from "../discovery/candidateBuilder.js";
-import type { PortfolioState } from "../types/domain.js";
+import type { AgentDecision, PortfolioState } from "../types/domain.js";
 
 export class AgentRuntime {
   constructor(private provider: LlmProvider, private memory: AgentMemory) {}
 
-  async decide(candidates: CandidateContext[], portfolio: PortfolioState) {
+  async decide(candidates: CandidateContext[], portfolio: PortfolioState): Promise<AgentDecision> {
     const primary = selectPrimaryCandidate(candidates);
     if (!primary) {
-      return { action: "SKIP", confidence: 0.1, reasons: ["no candidate"], warnings: [], notes: "No tokens discovered" } as const;
+      return { action: "SKIP", confidence: 0.1, reasons: ["no candidate"], warnings: [], notes: "No tokens discovered" };
     }
     const ctx = buildAgentContext(primary, portfolio, this.memory.recentNotes());
     return requestAgentDecision(this.provider, ctx);
