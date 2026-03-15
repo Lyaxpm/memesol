@@ -41,7 +41,12 @@ export const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 export function loadEnv(): Env {
-  const parsed = envSchema.safeParse(process.env);
+  const raw = {
+    ...process.env,
+    AGENT_ROUTER_TOKEN: process.env.AGENT_ROUTER_TOKEN ?? process.env.AGENTROUTER_TOKEN ?? "",
+    AGENTROUTER_BASE_URL: process.env.AGENTROUTER_BASE_URL ?? process.env.AGENT_ROUTER_BASE_URL ?? "https://agentrouter.org/v1"
+  };
+  const parsed = envSchema.safeParse(raw);
   if (!parsed.success) {
     throw new Error(`Invalid env: ${parsed.error.message}`);
   }
