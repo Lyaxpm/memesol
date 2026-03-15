@@ -8,8 +8,10 @@ const baseEnv: Env = {
   JUPITER_API_KEY: "",
   BOT_PRIVATE_KEY: "",
   AGENT_ROUTER_TOKEN: "token",
+  AGENTROUTER_API_KEY: "",
+  OPENAI_API_KEY: "",
   AGENTROUTER_BASE_URL: "https://agentrouter.org/v1",
-  AGENT_MODEL: "gpt-5",
+  AGENT_MODEL: "deepseek-chat",
   LIVE_TRADING: false,
   PAPER_TRADING: true,
   KILL_SWITCH: false,
@@ -53,6 +55,22 @@ describe("AgentRouterClient", () => {
     expect(res.text).toContain("authentication failed");
   });
 
+  it("returns authorization hint including model on 403", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response("model not allowed", { status: 403 }));
+
+    const client = new AgentRouterClient(baseEnv);
+    const res = await client.complete({
+      systemPrompt: "system",
+      userPrompt: "user",
+      timeoutMs: 200
+    });
+
+    expect(res.model).toBe("fallback");
+    expect(res.text).toContain("authorization failed");
+    expect(res.text).toContain("deepseek-chat");
+    expect(res.text).toContain("model not allowed");
+  });
+
   it("throws on non-auth http errors", async () => {
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => new Response("server blew up", { status: 500 }));
 
@@ -65,5 +83,34 @@ describe("AgentRouterClient", () => {
         timeoutMs: 200
       })
     ).rejects.toThrow("AgentRouter error: 500");
+  });
+
+  it("accepts OPENAI_API_KEY alias and strips Bearer prefix", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      return new Response(
+        JSON.stringify({
+          choices: [{ message: { content: '{"action":"HOLD","confidence":0.8}' } }]
+        }),
+        { status: 200 }
+      );
+    });
+
+    const client = new AgentRouterClient({
+      ...baseEnv,
+      AGENT_ROUTER_TOKEN: "",
+      OPENAI_API_KEY: "Bearer quoted-token"
+    });
+
+    await client.complete({
+      systemPrompt: "system",
+      userPrompt: "user",
+      timeoutMs: 200
+    });
+
+    const call = fetchSpy.mock.calls[0];
+    expect(call?.[1]?.headers).toMatchObject({
+      Authorization: "Bearer quoted-token",
+      "x-api-key": "quoted-token"
+    });
   });
 });

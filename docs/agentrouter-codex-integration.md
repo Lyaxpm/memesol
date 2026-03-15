@@ -6,7 +6,7 @@ Dokumen ini menjelaskan langkah praktis untuk menghubungkan runtime agent MemeSo
 
 1. Buka dashboard AgentRouter.
 2. Buat/generate API token.
-3. Simpan token tersebut untuk dimasukkan ke environment variable `AGENT_ROUTER_TOKEN`.
+3. Simpan token tersebut untuk dimasukkan ke environment variable `AGENT_ROUTER_TOKEN` (utama). Alias kompatibilitas: `AGENTROUTER_API_KEY` atau `OPENAI_API_KEY`.
 
 > Jika token kosong/salah, runtime akan masuk mode fallback dan keputusan AI akan terlihat seperti:
 > `AgentRouter authentication failed`.
@@ -23,13 +23,25 @@ Minimum konfigurasi AgentRouter:
 
 ```env
 AGENT_ROUTER_TOKEN=<isi_token_valid>
+# Optional alias (pakai salah satu saja bila perlu):
+# AGENTROUTER_API_KEY=<isi_token_valid>
+# OPENAI_API_KEY=<isi_token_valid>
 AGENTROUTER_BASE_URL=https://agentrouter.org/v1
-AGENT_MODEL=gpt-5
+AGENT_MODEL=deepseek-chat
 ```
 
 Catatan:
 - `AGENTROUTER_BASE_URL` default sudah mengarah ke endpoint publik AgentRouter.
-- Gunakan model yang didukung akun/token Anda.
+- Gunakan model yang didukung akun/token Anda. Jika Anda pakai DeepSeek, set `AGENT_MODEL=deepseek-chat` (atau model DeepSeek lain yang tersedia di akun AgentRouter Anda).
+
+
+### Contoh cepat untuk DeepSeek
+
+```env
+AGENT_MODEL=deepseek-chat
+```
+
+Jika masih gagal dengan pesan auth/authorization, seringnya penyebabnya adalah model tidak diizinkan di akun AgentRouter walau token valid.
 
 ## 3) Jalankan agent
 
@@ -53,9 +65,9 @@ Tanda integrasi **berhasil**:
 ## 5) Checklist troubleshooting cepat
 
 1. Pastikan `.env` benar-benar terbaca saat `npm run start`.
-2. Cek nama variabel harus tepat: `AGENT_ROUTER_TOKEN` (bukan variasi lain).
+2. Prioritas variabel token: `AGENT_ROUTER_TOKEN` → `AGENTROUTER_API_KEY` → `OPENAI_API_KEY`.
 3. Verifikasi `AGENTROUTER_BASE_URL` tidak typo.
-4. Pastikan token masih aktif / belum direvoke.
+4. Pastikan token masih aktif / belum direvoke, dan tidak berisi prefix ganda seperti `Bearer Bearer ...`.
 5. Coba ganti `AGENT_MODEL` ke model lain yang diizinkan oleh akun.
 
 ## 6) Lokasi implementasi di kode
