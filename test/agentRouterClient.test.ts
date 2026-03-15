@@ -8,6 +8,8 @@ const baseEnv: Env = {
   JUPITER_API_KEY: "",
   BOT_PRIVATE_KEY: "",
   AGENT_ROUTER_TOKEN: "token",
+  AGENTROUTER_API_KEY: "",
+  OPENAI_API_KEY: "",
   AGENTROUTER_BASE_URL: "https://agentrouter.org/v1",
   AGENT_MODEL: "gpt-5",
   LIVE_TRADING: false,
@@ -65,5 +67,34 @@ describe("AgentRouterClient", () => {
         timeoutMs: 200
       })
     ).rejects.toThrow("AgentRouter error: 500");
+  });
+
+  it("accepts OPENAI_API_KEY alias and strips Bearer prefix", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+      return new Response(
+        JSON.stringify({
+          choices: [{ message: { content: '{"action":"HOLD","confidence":0.8}' } }]
+        }),
+        { status: 200 }
+      );
+    });
+
+    const client = new AgentRouterClient({
+      ...baseEnv,
+      AGENT_ROUTER_TOKEN: "",
+      OPENAI_API_KEY: "Bearer quoted-token"
+    });
+
+    await client.complete({
+      systemPrompt: "system",
+      userPrompt: "user",
+      timeoutMs: 200
+    });
+
+    const call = fetchSpy.mock.calls[0];
+    expect(call?.[1]?.headers).toMatchObject({
+      Authorization: "Bearer quoted-token",
+      "x-api-key": "quoted-token"
+    });
   });
 });
