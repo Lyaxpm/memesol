@@ -13,6 +13,8 @@ export const envSchema = z.object({
   JUPITER_API_KEY: z.string().optional().default(""),
   BOT_PRIVATE_KEY: z.string().optional().default(""),
   AGENT_ROUTER_TOKEN: z.string().optional().default(""),
+  AGENTROUTER_API_KEY: z.string().optional().default(""),
+  OPENAI_API_KEY: z.string().optional().default(""),
   AGENTROUTER_BASE_URL: z.string().url().default("https://agentrouter.org/v1"),
   AGENT_MODEL: z.string().default("gpt-5"),
   LIVE_TRADING: bool.default(false),

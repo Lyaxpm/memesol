@@ -18,7 +18,8 @@ Agent cycle: observe → analyze → decide → validate → act → reflect.
 
 ## AgentRouter integration
 Configured via env:
-- `AGENT_ROUTER_TOKEN`
+- `AGENT_ROUTER_TOKEN` (utama)
+- `AGENTROUTER_API_KEY` / `OPENAI_API_KEY` (alias kompatibilitas)
 - `AGENTROUTER_BASE_URL` (default `https://agentrouter.org/v1`)
 - `AGENT_MODEL` (default `gpt-5`)
 
