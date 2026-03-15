@@ -16,24 +16,24 @@ This is **an AI agent runtime**, not only a deterministic rule bot:
 
 Agent cycle: observe → analyze → decide → validate → act → reflect.
 
-## AgentRouter integration
+## Exa integration
 Configured via env:
-- `AGENT_ROUTER_TOKEN` (utama)
-- `AGENTROUTER_API_KEY` / `OPENAI_API_KEY` (alias kompatibilitas)
-- `AGENTROUTER_BASE_URL` (default `https://agentrouter.org/v1`)
-- `AGENT_MODEL` (default `gpt-5`)
+- `EXA_API_KEY` (required for online reasoning)
+- `EXA_BASE_URL` (default `https://api.exa.ai`)
+- `EXA_MODEL` (default `exa`)
+- `EXA_SEARCH_TYPE` (default `auto`)
 
 LLM integration uses provider abstraction:
 - `src/llm/types.ts`
 - `src/llm/provider.ts`
-- `src/llm/agentRouterClient.ts`
+- `src/llm/exaClient.ts`
 
 Structured response parsing/validation:
 - `src/llm/parser.ts` (zod schema)
 - Invalid model output falls back to safe `SKIP`.
 
-Panduan langkah-per-langkah integrasi Codex ↔ AgentRouter tersedia di:
-- `docs/agentrouter-codex-integration.md`
+Panduan langkah-per-langkah integrasi Exa tersedia di:
+- `docs/exa-codex-integration.md`
 
 ## Run
 ```bash
