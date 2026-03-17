@@ -8,4 +8,11 @@ describe("guardrails", () => {
     const res = applyGuardrails({ action: "BUY", confidence: 0.1, positionUsd: 1, reasons: ["x"], warnings: [], notes: "n" }, env, { balanceUsd: 10, reserveSol: 1, openPositions: [], realizedPnlUsd: 0, dailyPnlUsd: 0 });
     expect(res.allowed).toBe(false);
   });
+
+  it("allows low confidence SKIP", () => {
+    const env = loadEnv();
+    const res = applyGuardrails({ action: "SKIP", confidence: 0.1, reasons: ["fallback"], warnings: [], notes: "n" }, env, { balanceUsd: 10, reserveSol: 1, openPositions: [], realizedPnlUsd: 0, dailyPnlUsd: 0 });
+    expect(res.allowed).toBe(true);
+  });
+
 });

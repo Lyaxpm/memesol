@@ -31,6 +31,7 @@ Structured response parsing/validation:
 - `src/llm/parser.ts` (zod schema)
 - Invalid model output or unavailable provider falls back to safe `SKIP` observation mode.
 
+
 ## Run
 ```bash
 npm install

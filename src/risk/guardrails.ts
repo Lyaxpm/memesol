@@ -5,7 +5,8 @@ export function applyGuardrails(decision: AgentDecision, env: Env, portfolio: Po
   const reasons: string[] = [];
   if (env.KILL_SWITCH) reasons.push("kill switch enabled");
   if (portfolio.dailyPnlUsd <= -Math.abs(env.MAX_DAILY_LOSS_USD)) reasons.push("daily max loss reached");
-  if (decision.confidence < env.AGENT_MIN_CONFIDENCE) reasons.push("agent confidence below threshold");
+  const requiresConfidence = decision.action === "BUY" || decision.action === "SELL";
+  if (requiresConfidence && decision.confidence < env.AGENT_MIN_CONFIDENCE) reasons.push("agent confidence below threshold");
   if (decision.action === "BUY") {
     if ((decision.positionUsd ?? 0) > env.MAX_POSITION_USD) reasons.push("position above max position usd");
     if (portfolio.openPositions.length >= env.MAX_OPEN_POSITIONS) reasons.push("max open positions reached");
